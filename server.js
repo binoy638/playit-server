@@ -9,20 +9,27 @@ const helmet = require("helmet");
 
 const { searchTracks, newRelease, topTracks } = require("./src/utils/spotify");
 const { infoFromQuery } = require("./src/utils/youtube");
-const app = express();
+
 require("dotenv").config();
 const client = new MongoClient(process.env.ATLAS_URI);
 const port = process.env.PORT || 5000;
 const REDIS_URL = process.env.REDIS_URL;
 
+//creating a redis client
 const redisCache = redis.createClient(REDIS_URL);
 
+//creating an express app
+const app = express();
+
+//using middlewares
 app.use(helmet());
 app.use(morgan("tiny"));
 app.use(cors());
 
 let collection;
-app.get("/test", async (req, res) => {
+
+//endpoint to get search suggestions
+app.get("/autosearch", async (req, res) => {
   try {
     let result = await collection
       .aggregate([
@@ -52,6 +59,7 @@ app.get("/test", async (req, res) => {
   }
 });
 
+//endpoint to get track search results from spotify
 app.get("/search", async (req, res) => {
   const query = req.query.query;
   const result = await searchTracks(query);
@@ -76,6 +84,7 @@ function cache(req, res, next) {
   });
 }
 
+//endpoint to get new released tracks from spotify
 app.get("/new-release", cache, async (req, res) => {
   try {
     const result = await newRelease();
@@ -92,6 +101,7 @@ app.get("/new-release", cache, async (req, res) => {
   }
 });
 
+//endpoint to get most played tracks from spotify
 app.get("/top-tracks", cache, async (req, res) => {
   try {
     const result = await topTracks();
@@ -106,13 +116,7 @@ app.get("/top-tracks", cache, async (req, res) => {
   }
 });
 
-// app.get("/test", (req, res) => {
-//   const key = req.query.key;
-//   const data = req.query.data;
-//   // console.log(query);
-//   test(key, data);
-// });
-
+//endpoint to get youtube video id
 app.get("/videoid", cache, async (req, res) => {
   try {
     const query = req.query.query;
@@ -131,6 +135,7 @@ app.get("/videoid", cache, async (req, res) => {
 
 app.listen(port, async () => {
   console.log(`listening at http://localhost:${port}`);
+  //connect to mongodb
   try {
     await client.connect({
       useNewUrlParser: true,
