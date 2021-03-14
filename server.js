@@ -1,7 +1,12 @@
 const express = require("express");
 const { MongoClient, ObjectID } = require("mongodb");
 const redis = require("redis");
+
+//middlewares
 const cors = require("cors");
+const morgan = require("morgan");
+const helmet = require("helmet");
+
 const { searchTracks, newRelease, topTracks } = require("./src/utils/spotify");
 const { infoFromQuery } = require("./src/utils/youtube");
 const app = express();
@@ -12,7 +17,10 @@ const REDIS_URL = process.env.REDIS_URL;
 
 const redisCache = redis.createClient(REDIS_URL);
 
+app.use(helmet());
+app.use(morgan("tiny"));
 app.use(cors());
+
 let collection;
 app.get("/test", async (req, res) => {
   try {
