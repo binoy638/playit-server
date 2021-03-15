@@ -29,14 +29,14 @@ app.use(cors());
 let collection;
 
 //endpoint to get search suggestions
-app.get("/autosearch", async (req, res) => {
+app.get("/autosearch/artist/:name", async (req, res) => {
   try {
     let result = await collection
       .aggregate([
         {
           $search: {
             autocomplete: {
-              query: `${req.query.query}`,
+              query: `${req.params.name}`,
               path: "artist",
               fuzzy: {
                 maxEdits: 2,
@@ -58,6 +58,68 @@ app.get("/autosearch", async (req, res) => {
     res.status(500).send({ message: e.message });
   }
 });
+
+app.get("/autosearch/track/:title", async (req, res) => {
+  try {
+    let result = await collection
+      .aggregate([
+        {
+          $search: {
+            autocomplete: {
+              query: `${req.params.title}`,
+              path: "name",
+            },
+          },
+        },
+        // { $sort: { popularity: -1 } },
+        {
+          $limit: 5,
+        },
+      ])
+      // .find({ name: "Numb" })
+      .toArray();
+
+    res.send(result);
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+  }
+});
+
+// app.get("/autosearch", async (req, res) => {
+//   try {
+//     let result = await collection
+//       .aggregate([
+//         {
+//           $search: {
+//             compound: {
+//               should: [
+//                 {
+//                   autocomplete: {
+//                     query: `${req.query.query}`,
+//                     path: "artist",
+//                   },
+//                   autocomplete: {
+//                     query: `${req.query.query}`,
+//                     path: "name",
+//                   },
+//                 },
+//               ],
+//             },
+//           },
+//         },
+//         { $sort: { popularity: -1 } },
+//         {
+//           $limit: 10,
+//         },
+//       ])
+//       // .find({ name: "Numb" })
+//       .toArray();
+
+//     res.send(result);
+//   } catch (e) {
+//     res.status(500).send({ message: e.message });
+//   }
+// });
 
 //endpoint to get track search results from spotify
 app.get("/search", cache, async (req, res) => {
