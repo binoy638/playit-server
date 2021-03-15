@@ -71,7 +71,7 @@ app.get("/autosearch/track/:title", async (req, res) => {
             },
           },
         },
-        // { $sort: { popularity: -1 } },
+        { $sort: { popularity: -1 } },
         {
           $limit: 5,
         },
