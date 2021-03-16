@@ -9,6 +9,7 @@ const helmet = require("helmet");
 
 const { searchTracks, newRelease, topTracks } = require("./src/utils/spotify");
 const { infoFromQuery } = require("./src/utils/youtube");
+const { lyrics } = require("./src/utils/lyrics");
 
 require("dotenv").config();
 const client = new MongoClient(process.env.ATLAS_URI);
@@ -50,7 +51,6 @@ app.get("/autosearch/artist/:name", async (req, res) => {
           $limit: 5,
         },
       ])
-      // .find({ name: "Numb" })
       .toArray();
 
     res.send(result);
@@ -76,7 +76,6 @@ app.get("/autosearch/track/:title", async (req, res) => {
           $limit: 5,
         },
       ])
-      // .find({ name: "Numb" })
       .toArray();
 
     res.send(result);
@@ -84,42 +83,6 @@ app.get("/autosearch/track/:title", async (req, res) => {
     res.status(500).send({ message: e.message });
   }
 });
-
-// app.get("/autosearch", async (req, res) => {
-//   try {
-//     let result = await collection
-//       .aggregate([
-//         {
-//           $search: {
-//             compound: {
-//               should: [
-//                 {
-//                   autocomplete: {
-//                     query: `${req.query.query}`,
-//                     path: "artist",
-//                   },
-//                   autocomplete: {
-//                     query: `${req.query.query}`,
-//                     path: "name",
-//                   },
-//                 },
-//               ],
-//             },
-//           },
-//         },
-//         { $sort: { popularity: -1 } },
-//         {
-//           $limit: 10,
-//         },
-//       ])
-//       // .find({ name: "Numb" })
-//       .toArray();
-
-//     res.send(result);
-//   } catch (e) {
-//     res.status(500).send({ message: e.message });
-//   }
-// });
 
 //endpoint to get track search results from spotify
 app.get("/search", cache, async (req, res) => {
@@ -197,6 +160,17 @@ app.get("/videoid", cache, async (req, res) => {
     console.error(e);
     res.status(500);
   }
+});
+
+app.get("/lyrics/:title/:artist", async (req, res) => {
+  const { title, artist } = req.params;
+
+  const result = await lyrics(title, artist);
+  // const redisValue = JSON.stringify(result);
+  // const key = query;
+
+  // redisCache.setex(key, 86400, redisValue);
+  res.send(result);
 });
 
 app.listen(port, async () => {
