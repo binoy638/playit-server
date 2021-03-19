@@ -91,7 +91,7 @@ const newRelease = async () => {
   await setToken();
   try {
     const response = await spotifyApi.getNewReleases({
-      limit: 7,
+      limit: 50,
       offset: 0,
     });
 
@@ -124,7 +124,7 @@ const topTracks = async () => {
   try {
     const response = await spotifyApi.getPlaylist("37i9dQZEVXbMDoHDwVN2tF");
 
-    const items = response.body.tracks.items.slice(3, 10);
+    const items = response.body.tracks.items;
 
     let tracks = [];
 
