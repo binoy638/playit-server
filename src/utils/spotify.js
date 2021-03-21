@@ -64,9 +64,10 @@ const searchTracks = async (query) => {
 
   if (response.statusCode === 200) {
     if (response.body.tracks.items.length === 0) {
-      return undefined;
+      return { statusCode: 404 };
     }
     const tracks = response.body.tracks.items;
+
     let tracklist = [];
 
     tracks.map((track) => {
@@ -84,7 +85,7 @@ const searchTracks = async (query) => {
 
     return tracklist;
   }
-  return undefined;
+  return { statusCode: 500 };
 };
 
 const newRelease = async () => {
@@ -116,6 +117,7 @@ const newRelease = async () => {
   } catch (e) {
     console.log("Something went wrong with new release fetch.");
     console.log(e);
+    return { statusCode: 500 };
   }
 };
 
@@ -147,6 +149,7 @@ const topTracks = async () => {
   } catch (e) {
     console.log("Something went wrong with topTracks fetch.");
     console.log(e);
+    return { statusCode: 500 };
   }
 };
 

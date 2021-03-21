@@ -85,13 +85,16 @@ app.get("/autosearch/track/:title", async (req, res) => {
 });
 
 //endpoint to get track search results from spotify
-app.get("/search", cache, async (req, res) => {
+app.get("/search", async (req, res) => {
   const query = req.query.query;
   const result = await searchTracks(query);
   const redisValue = JSON.stringify(result);
   const key = query;
 
-  redisCache.setex(key, 86400, redisValue);
+  if (key && redisValue) {
+    redisCache.setex(key, 86400, redisValue);
+  }
+
   res.send(result);
 });
 
@@ -122,7 +125,10 @@ app.get("/new-release", cache, async (req, res) => {
 
     const key = req.path.slice(1);
 
-    redisCache.setex(key, 86400, redisValue);
+    if (key && redisValue) {
+      redisCache.setex(key, 86400, redisValue);
+    }
+
     res.send(result);
   } catch (e) {
     console.error(e);
@@ -137,7 +143,10 @@ app.get("/top-tracks", cache, async (req, res) => {
     const redisValue = JSON.stringify(result);
     const key = req.path.slice(1);
 
-    redisCache.setex(key, 86400, redisValue);
+    if (key && redisValue) {
+      redisCache.setex(key, 86400, redisValue);
+    }
+
     res.send(result);
   } catch (e) {
     console.error(e);
@@ -154,7 +163,9 @@ app.get("/videoid", cache, async (req, res) => {
     const redisValue = JSON.stringify(result);
     const key = query;
 
-    redisCache.set(key, redisValue);
+    if (key && redisValue) {
+      redisCache.setex(key, redisValue);
+    }
     res.send(result);
   } catch (e) {
     console.error(e);
