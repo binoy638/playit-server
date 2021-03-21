@@ -164,7 +164,7 @@ app.get("/videoid", cache, async (req, res) => {
     const key = query;
 
     if (key && redisValue) {
-      redisCache.setex(key, redisValue);
+      redisCache.set(key, redisValue);
     }
     res.send(result);
   } catch (e) {
