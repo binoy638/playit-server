@@ -71,11 +71,13 @@ const searchTracks = async (query) => {
     let tracklist = [];
 
     tracks.map((track) => {
+      const id = track.id;
       const artist = track.artists[0].name;
       const title = track.name;
       const image = track.album.images[1].url;
       const search_query = `${artist} ${title}`;
       tracklist.push({
+        id,
         artist,
         title,
         image,
@@ -101,11 +103,13 @@ const newRelease = async () => {
     let tracklist = [];
 
     tracks.map((track) => {
+      const id = track.id;
       const artist = track.artists[0].name;
       const title = track.name;
       const image = track.images[1].url;
       const search_query = `${artist} ${title}`;
       tracklist.push({
+        id,
         artist,
         title,
         image,
@@ -131,12 +135,14 @@ const topTracks = async () => {
     let tracks = [];
 
     items.map((item) => {
+      const id = item.track.id;
       const artist = item.track.artists[0].name;
       const artists = item.track.artists.map((artist) => artist.name).join();
       const image = item.track.album.images[1].url;
       const title = item.track.name;
 
       const obj = {
+        id,
         artist,
         title,
         image,

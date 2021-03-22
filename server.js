@@ -85,7 +85,7 @@ app.get("/autosearch/track/:title", async (req, res) => {
 });
 
 //endpoint to get track search results from spotify
-app.get("/search", async (req, res) => {
+app.get("/search", cache, async (req, res) => {
   const query = req.query.query;
   const result = await searchTracks(query);
   const redisValue = JSON.stringify(result);
