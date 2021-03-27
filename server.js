@@ -27,6 +27,11 @@ app.use(helmet());
 app.use(morgan("tiny"));
 app.use(cors());
 
+//Keys
+//SPT: spotify tracks
+//SPP:spotify playlist
+//YTID: yt video id
+
 let collection;
 
 //endpoint to get search suggestions
@@ -85,11 +90,11 @@ app.get("/autosearch/track/:title", async (req, res) => {
 });
 
 //endpoint to get track search results from spotify
-app.get("/search", cache, async (req, res) => {
+app.get("/search", cache("SPT-"), async (req, res) => {
   const query = req.query.query;
   const result = await searchTracks(query);
   const redisValue = JSON.stringify(result);
-  const key = query;
+  const key = `SPT-${query}`;
 
   if (key && redisValue) {
     redisCache.setex(key, 86400, redisValue);
@@ -99,31 +104,37 @@ app.get("/search", cache, async (req, res) => {
 });
 
 //Cache middleware
-function cache(req, res, next) {
-  let key = req.query.query;
-  if (!key) {
-    key = req.path.slice(1);
-  }
-  redisCache.get(key, (err, data) => {
-    if (err) throw err;
+function cache(prefix) {
+  return (req, res, next) => {
+    let query = req.query.query;
+    let key;
 
-    if (data !== null) {
-      console.log(`fetching ${key} from cache`);
-      res.send(JSON.parse(data));
+    if (!query) {
+      key = prefix + req.path.slice(1);
     } else {
-      next();
+      key = prefix + query;
     }
-  });
+    redisCache.get(key, (err, data) => {
+      if (err) throw err;
+
+      if (data !== null) {
+        console.log(`fetching ${key} from cache`);
+        res.send(JSON.parse(data));
+      } else {
+        next();
+      }
+    });
+  };
 }
 
 //endpoint to get new released tracks from spotify
-app.get("/new-release", cache, async (req, res) => {
+app.get("/new-release", cache("SPP-"), async (req, res) => {
   try {
     const result = await newRelease();
 
     const redisValue = JSON.stringify(result);
 
-    const key = req.path.slice(1);
+    const key = `SPP-${req.path.slice(1)}`;
 
     if (key && redisValue) {
       redisCache.setex(key, 86400, redisValue);
@@ -137,11 +148,11 @@ app.get("/new-release", cache, async (req, res) => {
 });
 
 //endpoint to get most played tracks from spotify
-app.get("/top-tracks", cache, async (req, res) => {
+app.get("/top-tracks", cache("SPP-"), async (req, res) => {
   try {
     const result = await topTracks();
     const redisValue = JSON.stringify(result);
-    const key = req.path.slice(1);
+    const key = `SPP-${req.path.slice(1)}`;
 
     if (key && redisValue) {
       redisCache.setex(key, 86400, redisValue);
@@ -155,13 +166,13 @@ app.get("/top-tracks", cache, async (req, res) => {
 });
 
 //endpoint to get youtube video id
-app.get("/videoid", cache, async (req, res) => {
+app.get("/videoid", cache("YTID-"), async (req, res) => {
   try {
     const query = req.query.query;
 
     const result = await infoFromQuery(query);
     const redisValue = JSON.stringify(result);
-    const key = query;
+    const key = `YTID-${query}`;
 
     if (key && redisValue) {
       redisCache.set(key, redisValue);
