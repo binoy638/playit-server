@@ -1,16 +1,9 @@
-const cache = require("node-cache");
+const redis = require("redis");
+const REDIS_URL = process.env.REDIS_URL;
+const redisCache = redis.createClient(REDIS_URL);
 
-module.exports = (function () {
-  this.storage = new cache();
-  // this.storage.on("set", function (key, value) {
-  //   console.log(`key:${key} value:${value}`);
-  // });
-  // this.storage.on("expired", function (key, value) {
-  //   console.log(`${key} expired`);
-  // });
+redisCache.on("error", function (err) {
+  console.log("Error " + err);
+});
 
-  this.storage.on("set", function (key, value) {
-    // console.log(this.storage);
-  });
-  return this.storage;
-})();
+module.exports = { redisCache };

@@ -20,7 +20,6 @@
     "helmet": "^4.4.1",
     "mongodb": "^3.6.4",
     "morgan": "^1.10.0",
-    "node-cache": "^5.1.2",
     "qs": "^6.9.6",
     "redis": "^3.0.2",
     "scrape-youtube": "^2.1.3",
