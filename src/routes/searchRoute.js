@@ -1,3 +1,4 @@
+const { Router } = require("express");
 const express = require("express");
 const { cache } = require("../middlewares/cache");
 const { redisCache } = require("../utils/cache");
@@ -6,17 +7,17 @@ const {
   searchTracks,
   newRelease,
   topTracks,
-  getTrackInfo,
-  getArtistInfo,
+  searchArtists,
 } = require("../utils/spotify");
 const { infoFromQuery } = require("../utils/youtube");
 const router = express.Router();
 
-//Keys
+//Keys Prefix
 //SPT: spotify tracks
 //SPP:spotify playlist
 //YTID: yt video id
 //SPA: spotify artist
+//SPID: spotify track id
 
 //key types
 //1 = path
@@ -96,28 +97,17 @@ router.get("/videoid", cache("YTID-", 2), async (req, res) => {
   }
 });
 
+router.get("/artist", async (req, res) => {
+  const { query } = req.query;
+  const result = await searchArtists(query);
+  res.send(result);
+});
+
 router.get("/lyrics/:title/:artist", cache("LRI-", 3), async (req, res) => {
   const { title, artist } = req.params;
   const result = await lyrics(title, artist);
   const redisValue = JSON.stringify(result);
   const key = `LRI-${title}-${artist}`;
-
-  if (key && redisValue) {
-    redisCache.set(key, redisValue);
-  }
-  res.send(result);
-});
-
-router.get("/trackID", async (req, res) => {
-  const result = await getTrackInfo();
-  res.send(result);
-});
-
-router.get("/artist/:id", cache("SPA-", 3), async (req, res) => {
-  const { id } = req.params;
-  const result = await getArtistInfo(id);
-  const redisValue = JSON.stringify(result);
-  const key = `SPA-${id}`;
 
   if (key && redisValue) {
     redisCache.set(key, redisValue);

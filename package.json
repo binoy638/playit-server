@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "dev":"nodemon server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +19,6 @@
     "express": "^4.17.1",
     "genius-lyrics-api": "^3.0.6",
     "helmet": "^4.4.1",
-    "mongodb": "^3.6.4",
     "morgan": "^1.10.0",
     "qs": "^6.9.6",
     "redis": "^3.0.2",
