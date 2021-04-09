@@ -18,6 +18,8 @@ const router = express.Router();
 //YTID: yt video id
 //SPA: spotify artist
 //SPID: spotify track id
+//SAID: spotify album ID
+//SATT: spotify artist top tracks
 
 //key types
 //1 = path
@@ -98,21 +100,31 @@ router.get("/videoid", cache("YTID-", 2), async (req, res) => {
 });
 
 router.get("/artist", async (req, res) => {
-  const { query } = req.query;
-  const result = await searchArtists(query);
-  res.send(result);
+  try {
+    const { query } = req.query;
+    const result = await searchArtists(query);
+    res.send(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500);
+  }
 });
 
 router.get("/lyrics/:title/:artist", cache("LRI-", 3), async (req, res) => {
-  const { title, artist } = req.params;
-  const result = await lyrics(title, artist);
-  const redisValue = JSON.stringify(result);
-  const key = `LRI-${title}-${artist}`;
+  try {
+    const { title, artist } = req.params;
+    const result = await lyrics(title, artist);
+    const redisValue = JSON.stringify(result);
+    const key = `LRI-${title}-${artist}`;
 
-  if (key && redisValue) {
-    redisCache.set(key, redisValue);
+    if (key && redisValue) {
+      redisCache.set(key, redisValue);
+    }
+    res.send(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500);
   }
-  res.send(result);
 });
 
 module.exports = router;

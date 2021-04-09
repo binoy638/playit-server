@@ -17,45 +17,82 @@ router.get("/", (req, res) => {
 });
 
 router.get("/artist/:id", cache("SPA-", 3), async (req, res) => {
-  const { id } = req.params;
-  const result = await getArtistInfo(id);
-  const redisValue = JSON.stringify(result);
-  const key = `SPA-${id}`;
+  try {
+    const { id } = req.params;
+    const result = await getArtistInfo(id);
+    const redisValue = JSON.stringify(result);
+    const key = `SPA-${id}`;
 
-  if (key && redisValue) {
-    redisCache.set(key, redisValue);
+    if (key && redisValue) {
+      redisCache.set(key, redisValue);
+    }
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500);
   }
-  res.send(result);
 });
 
 router.get("/track/:id", cache("SPID-", 3), async (req, res) => {
-  const { id } = req.params;
-  const result = await getTrackInfo(id);
-  const redisValue = JSON.stringify(result);
-  const key = `SPID-${id}`;
+  try {
+    const { id } = req.params;
+    const result = await getTrackInfo(id);
+    const redisValue = JSON.stringify(result);
+    const key = `SPID-${id}`;
 
-  if (key && redisValue) {
-    redisCache.set(key, redisValue);
+    if (key && redisValue) {
+      redisCache.set(key, redisValue);
+    }
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500);
   }
-  res.send(result);
 });
 
-router.get("/album/:id", async (req, res) => {
-  const { id } = req.params;
-  const result = await getAlbum(id);
-  res.send(result);
+router.get("/album/:id", cache("SAID-", 3), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await getAlbum(id);
+    const redisValue = JSON.stringify(result);
+    const key = `SAID-${id}`;
+
+    if (key && redisValue) {
+      redisCache.set(key, redisValue);
+    }
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500);
+  }
 });
 
 router.get("/artist-albums", async (req, res) => {
-  const { id, limit, offset, include_groups } = req.query;
-  const result = await getArtistAlbums(id, limit, offset, include_groups);
-  res.send(result);
+  try {
+    const { id, limit, offset, include_groups } = req.query;
+    const result = await getArtistAlbums(id, limit, offset, include_groups);
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500);
+  }
 });
 
-router.get("/artist-toptracks/:id", async (req, res) => {
-  const { id } = req.params;
-  const result = await getArtistTopTracks(id);
-  res.send(result);
+router.get("/artist-toptracks/:id", cache("SATT-", 3), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await getArtistTopTracks(id);
+    const redisValue = JSON.stringify(result);
+    const key = `SATT-${id}`;
+
+    if (key && redisValue) {
+      redisCache.setex(key, 86400, redisValue);
+    }
+    res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500);
+  }
 });
 
 module.exports = router;
