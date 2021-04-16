@@ -1,5 +1,4 @@
 const express = require("express");
-
 //middlewares
 const cors = require("cors");
 const morgan = require("morgan");
@@ -19,6 +18,8 @@ const app = express();
 app.use(helmet());
 app.use(morgan("tiny"));
 app.use(cors());
+app.use(express.json());
+// app.use(express.urlencoded());
 
 //routes
 app.use("/search", Searchrouter);

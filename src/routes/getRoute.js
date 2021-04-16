@@ -2,6 +2,7 @@ const express = require("express");
 const routes = require("../../server");
 const { cache } = require("../middlewares/cache");
 const { redisCache } = require("../utils/cache");
+const { colorext } = require("../utils/colorext");
 const {
   getArtistInfo,
   getTrackInfo,
@@ -89,6 +90,27 @@ router.get("/artist-toptracks/:id", cache("SATT-", 3), async (req, res) => {
       redisCache.setex(key, 86400, redisValue);
     }
     res.send(result);
+  } catch (error) {
+    console.error(error);
+    res.status(500);
+  }
+});
+
+router.post("/color", cache("IMG-", 4), async (req, res) => {
+  try {
+    const { url, name } = req.body;
+    const colors = await colorext(url, name);
+    if (colors) {
+      const redisValue = JSON.stringify(colors);
+      const key = `IMG-${name}`;
+
+      if (key && redisValue) {
+        redisCache.set(key, redisValue);
+      }
+      res.status(200).send(colors);
+    } else {
+      res.sendStatus(404).end();
+    }
   } catch (error) {
     console.error(error);
     res.status(500);
