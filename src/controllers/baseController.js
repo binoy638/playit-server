@@ -1,8 +1,3 @@
-const express = require("express");
-const routes = require("../../server");
-const { cache } = require("../middlewares/cache");
-const { redisCache } = require("../utils/cache");
-const { colorext } = require("../utils/colorext");
 const {
   getArtistInfo,
   getTrackInfo,
@@ -10,14 +5,9 @@ const {
   getAlbum,
   getArtistTopTracks,
 } = require("../utils/spotify");
+const { redisCache } = require("../configs/cache");
 
-const router = express.Router();
-
-router.get("/", (req, res) => {
-  res.send(routes);
-});
-
-router.get("/artist/:id", cache("SPA-", 3), async (req, res) => {
+exports.getArtistByIdController = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await getArtistInfo(id);
@@ -32,9 +22,9 @@ router.get("/artist/:id", cache("SPA-", 3), async (req, res) => {
     console.error(error);
     res.status(500);
   }
-});
+};
 
-router.get("/track/:id", cache("SPID-", 3), async (req, res) => {
+exports.getTrackByIdController = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await getTrackInfo(id);
@@ -49,9 +39,9 @@ router.get("/track/:id", cache("SPID-", 3), async (req, res) => {
     console.error(error);
     res.status(500);
   }
-});
+};
 
-router.get("/album/:id", cache("SAID-", 3), async (req, res) => {
+exports.getAlbumByIdController = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await getAlbum(id);
@@ -66,9 +56,9 @@ router.get("/album/:id", cache("SAID-", 3), async (req, res) => {
     console.error(error);
     res.status(500);
   }
-});
+};
 
-router.get("/artist-albums", async (req, res) => {
+exports.getArtistAlbumsController = async (req, res) => {
   try {
     const { id, limit, offset, include_groups } = req.query;
     const result = await getArtistAlbums(id, limit, offset, include_groups);
@@ -77,9 +67,9 @@ router.get("/artist-albums", async (req, res) => {
     console.error(error);
     res.status(500);
   }
-});
+};
 
-router.get("/artist-toptracks/:id", cache("SATT-", 3), async (req, res) => {
+exports.getArtistTopTracksController = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await getArtistTopTracks(id);
@@ -94,27 +84,4 @@ router.get("/artist-toptracks/:id", cache("SATT-", 3), async (req, res) => {
     console.error(error);
     res.status(500);
   }
-});
-
-router.post("/color", cache("IMG-", 4), async (req, res) => {
-  try {
-    const { url, name } = req.body;
-    const colors = await colorext(url, name);
-    if (colors) {
-      const redisValue = JSON.stringify(colors);
-      const key = `IMG-${name}`;
-
-      if (key && redisValue) {
-        redisCache.set(key, redisValue);
-      }
-      res.status(200).send(colors);
-    } else {
-      res.sendStatus(404).end();
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500);
-  }
-});
-
-module.exports = router;
+};

@@ -1,7 +1,4 @@
-const { Router } = require("express");
-const express = require("express");
-const { cache } = require("../middlewares/cache");
-const { redisCache } = require("../utils/cache");
+const { redisCache } = require("../configs/cache");
 const { lyrics } = require("../utils/lyrics");
 const {
   searchTracks,
@@ -10,24 +7,8 @@ const {
   searchArtists,
 } = require("../utils/spotify");
 const { infoFromQuery } = require("../utils/youtube");
-const router = express.Router();
 
-//Keys Prefix
-//SPT: spotify tracks
-//SPP:spotify playlist
-//YTID: yt video id
-//SPA: spotify artist
-//SPID: spotify track id
-//SAID: spotify album ID
-//SATT: spotify artist top tracks
-
-//key types
-//1 = path
-//2 = query
-//3 = param
-
-//endpoint to get track search results from spotify
-router.get("/track", cache("SPT-", 2), async (req, res) => {
+exports.searchTracksController = async (req, res) => {
   const query = req.query.query;
   const result = await searchTracks(query);
   const redisValue = JSON.stringify(result);
@@ -38,12 +19,9 @@ router.get("/track", cache("SPT-", 2), async (req, res) => {
   }
 
   res.send(result);
-});
+};
 
-//Cache middleware
-
-//endpoint to get new released tracks from spotify
-router.get("/new-release", cache("SPP-", 1), async (req, res) => {
+exports.searchNewReleaseController = async (req, res) => {
   try {
     const result = await newRelease();
 
@@ -60,10 +38,9 @@ router.get("/new-release", cache("SPP-", 1), async (req, res) => {
     console.error(e);
     res.status(500);
   }
-});
+};
 
-//endpoint to get most played tracks from spotify
-router.get("/top-tracks", cache("SPP-", 1), async (req, res) => {
+exports.searchTopTracksController = async (req, res) => {
   try {
     const result = await topTracks();
     const redisValue = JSON.stringify(result);
@@ -78,10 +55,9 @@ router.get("/top-tracks", cache("SPP-", 1), async (req, res) => {
     console.error(e);
     res.status(500);
   }
-});
+};
 
-//endpoint to get youtube video id
-router.get("/videoid", cache("YTID-", 2), async (req, res) => {
+exports.searchVideoIdController = async (req, res) => {
   try {
     const query = req.query.query;
 
@@ -97,9 +73,9 @@ router.get("/videoid", cache("YTID-", 2), async (req, res) => {
     console.error(e);
     res.status(500);
   }
-});
+};
 
-router.get("/artist", async (req, res) => {
+exports.searchArtistsController = async (req, res) => {
   try {
     const { query } = req.query;
     const result = await searchArtists(query);
@@ -108,9 +84,9 @@ router.get("/artist", async (req, res) => {
     console.error(e);
     res.status(500);
   }
-});
+};
 
-router.get("/lyrics/:title/:artist", cache("LRI-", 3), async (req, res) => {
+exports.searchLyrcisController = async (req, res) => {
   try {
     const { title, artist } = req.params;
     const result = await lyrics(title, artist);
@@ -125,6 +101,4 @@ router.get("/lyrics/:title/:artist", cache("LRI-", 3), async (req, res) => {
     console.error(e);
     res.status(500);
   }
-});
-
-module.exports = router;
+};

@@ -1,7 +1,7 @@
 const axios = require("axios");
 const qs = require("qs");
 const SpotifyWebApi = require("spotify-web-api-node");
-const { redisCache } = require("./cache.js");
+const { redisCache } = require("../configs/cache.js");
 const { promisify } = require("util");
 const { response } = require("express");
 const getAsync = promisify(redisCache.get).bind(redisCache);

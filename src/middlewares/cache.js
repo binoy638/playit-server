@@ -1,4 +1,4 @@
-const { redisCache } = require("../utils/cache");
+const { redisCache } = require("../configs/cache");
 
 //key types
 //1 = path

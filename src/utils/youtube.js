@@ -1,6 +1,6 @@
 const search = require("youtube-search");
 const youtube = require("scrape-youtube").default;
-const cache = require("./cache");
+const cache = require("../configs/cache");
 require("dotenv").config();
 const API_KEY = process.env.YOUTUBE_KEY;
 

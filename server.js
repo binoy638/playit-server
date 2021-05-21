@@ -5,8 +5,8 @@ const morgan = require("morgan");
 const helmet = require("helmet");
 
 //import Routes
-const Searchrouter = require("./src/routes/searchRoute");
-const Getrouter = require("./src/routes/getRoute");
+const searchRouter = require("./src/routes/searchRouter");
+const baseRouter = require("./src/routes/baseRouter");
 
 require("dotenv").config();
 const port = process.env.PORT || 5000;
@@ -22,8 +22,8 @@ app.use(express.json());
 // app.use(express.urlencoded());
 
 //routes
-app.use("/search", Searchrouter);
-app.use(Getrouter);
+app.use("/search", searchRouter);
+app.use(baseRouter);
 
 //404
 app.use((req, res) => {
