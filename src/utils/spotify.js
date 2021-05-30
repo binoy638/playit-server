@@ -84,7 +84,7 @@ const searchTracks = async (query) => {
         name: artist.name,
       }));
       const title = track.name;
-      const image = track.album.images[1].url;
+      const image = track?.album?.images[1]?.url;
       const type = track.type;
       const search_query = `${artist} ${title}`;
       tracklist.push({

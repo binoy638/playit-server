@@ -1,11 +1,13 @@
 const express = require("express");
-const routes = require("../../server");
+const routes = require("../index");
 const {
   getArtistByIdController,
   getTrackByIdController,
   getAlbumByIdController,
   getArtistAlbumsController,
   getArtistTopTracksController,
+  getNewReleaseController,
+  getTopTracksController,
 } = require("../controllers/baseController");
 const { cache } = require("../middlewares/cache");
 
@@ -20,6 +22,10 @@ router.get("/artist/:id", cache("SPA-", 3), getArtistByIdController);
 router.get("/track/:id", cache("SPID-", 3), getTrackByIdController);
 
 router.get("/album/:id", cache("SAID-", 3), getAlbumByIdController);
+
+router.get("/new-release", cache("SPP-", 1), getNewReleaseController);
+
+router.get("/top-tracks", cache("SPP-", 1), getTopTracksController);
 
 router.get("/artist-albums", getArtistAlbumsController);
 

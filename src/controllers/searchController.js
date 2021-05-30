@@ -1,11 +1,6 @@
 const { redisCache } = require("../configs/cache");
 const { lyrics } = require("../utils/lyrics");
-const {
-  searchTracks,
-  newRelease,
-  topTracks,
-  searchArtists,
-} = require("../utils/spotify");
+const { searchTracks, searchArtists } = require("../utils/spotify");
 const { infoFromQuery } = require("../utils/youtube");
 
 exports.searchTracksController = async (req, res) => {
@@ -19,42 +14,6 @@ exports.searchTracksController = async (req, res) => {
   }
 
   res.send(result);
-};
-
-exports.searchNewReleaseController = async (req, res) => {
-  try {
-    const result = await newRelease();
-
-    const redisValue = JSON.stringify(result);
-
-    const key = `SPP-${req.path.slice(1)}`;
-
-    if (key && redisValue) {
-      redisCache.setex(key, 86400, redisValue);
-    }
-
-    res.send(result);
-  } catch (e) {
-    console.error(e);
-    res.status(500);
-  }
-};
-
-exports.searchTopTracksController = async (req, res) => {
-  try {
-    const result = await topTracks();
-    const redisValue = JSON.stringify(result);
-    const key = `SPP-${req.path.slice(1)}`;
-
-    if (key && redisValue) {
-      redisCache.setex(key, 86400, redisValue);
-    }
-
-    res.send(result);
-  } catch (e) {
-    console.error(e);
-    res.status(500);
-  }
 };
 
 exports.searchVideoIdController = async (req, res) => {

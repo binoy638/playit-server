@@ -4,8 +4,46 @@ const {
   getArtistAlbums,
   getAlbum,
   getArtistTopTracks,
+  newRelease,
+  topTracks,
 } = require("../utils/spotify");
 const { redisCache } = require("../configs/cache");
+
+exports.getNewReleaseController = async (req, res) => {
+  try {
+    const result = await newRelease();
+
+    const redisValue = JSON.stringify(result);
+
+    const key = `SPP-${req.path.slice(1)}`;
+
+    if (key && redisValue) {
+      redisCache.setex(key, 86400, redisValue);
+    }
+
+    res.send(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500);
+  }
+};
+
+exports.getTopTracksController = async (req, res) => {
+  try {
+    const result = await topTracks();
+    const redisValue = JSON.stringify(result);
+    const key = `SPP-${req.path.slice(1)}`;
+
+    if (key && redisValue) {
+      redisCache.setex(key, 86400, redisValue);
+    }
+
+    res.send(result);
+  } catch (e) {
+    console.error(e);
+    res.status(500);
+  }
+};
 
 exports.getArtistByIdController = async (req, res) => {
   try {

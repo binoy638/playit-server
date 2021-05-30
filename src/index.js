@@ -1,14 +1,18 @@
 const express = require("express");
+require("dotenv").config();
+require("./configs/mongo")();
 //middlewares
 const cors = require("cors");
 const morgan = require("morgan");
 const helmet = require("helmet");
 
 //import Routes
-const searchRouter = require("./src/routes/searchRouter");
-const baseRouter = require("./src/routes/baseRouter");
+const searchRouter = require("./routes/searchRouter");
+const baseRouter = require("./routes/baseRouter");
+const authRouter = require("./routes/authRouter");
+const playlistRouter = require("./routes/playlistRouter");
+// const libraryRouter = require("./routes/libraryRouter");
 
-require("dotenv").config();
 const port = process.env.PORT || 5000;
 
 //creating an express app
@@ -23,6 +27,9 @@ app.use(express.json());
 
 //routes
 app.use("/search", searchRouter);
+app.use("/auth", authRouter);
+app.use("/playlist", playlistRouter);
+// app.use("/library", libraryRouter);
 app.use(baseRouter);
 
 //404

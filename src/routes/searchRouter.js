@@ -1,8 +1,6 @@
 const express = require("express");
 const {
   searchTracksController,
-  searchNewReleaseController,
-  searchTopTracksController,
   searchVideoIdController,
   searchArtistsController,
   searchLyrcisController,
@@ -26,10 +24,6 @@ const router = express.Router();
 //3 = param
 
 router.get("/track", cache("SPT-", 2), searchTracksController);
-
-router.get("/new-release", cache("SPP-", 1), searchNewReleaseController);
-
-router.get("/top-tracks", cache("SPP-", 1), searchTopTracksController);
 
 router.get("/videoid", cache("YTID-", 2), searchVideoIdController);
 
