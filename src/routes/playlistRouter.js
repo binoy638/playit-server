@@ -8,6 +8,8 @@ router.get("/add-track", Controller.addTrack);
 
 router.post("/create", verifyToken, Controller.create);
 
-// router.post("/create", verifyToken, createPlaylistController);
+router.get("/", verifyToken, (req, res) =>
+  res.send({ playlist: ["zyx", "abc"] })
+);
 
 module.exports = router;

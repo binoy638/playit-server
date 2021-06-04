@@ -49,7 +49,8 @@ exports.loginController = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(401).send("Invalid Credentials");
+    if (!user)
+      return res.status(401).send("Invalid credentials. Please try again.");
     const validPass = await bcrypt.compare(password, user.password);
     if (!validPass) return res.status(401).send("Invalid Credentials");
     const token = jwt.sign(
