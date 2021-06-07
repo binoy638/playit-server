@@ -53,11 +53,17 @@ exports.loginController = async (req, res) => {
       return res.status(401).send("Invalid credentials. Please try again.");
     const validPass = await bcrypt.compare(password, user.password);
     if (!validPass) return res.status(401).send("Invalid Credentials");
-    const token = jwt.sign(
-      { _id: user._id, username: user.username, email: user.email },
-      process.env.JWT_SECRET_TOKEN
-    );
-    res.status(200).send({ token });
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_TOKEN);
+    if (!user?.image?.url) {
+      user.image.url =
+        "https://static-cdn.jtvnw.net/user-default-pictures-uv/cdd517fe-def4-11e9-948e-784f43822e80-profile_image-300x300.png";
+    }
+    res.status(200).send({
+      token,
+      username: user.username,
+      email: user.email,
+      image: user.image,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send("Server Error");

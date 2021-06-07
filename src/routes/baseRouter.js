@@ -1,5 +1,4 @@
 const express = require("express");
-const routes = require("../index");
 const {
   getArtistByIdController,
   getTrackByIdController,
@@ -14,7 +13,7 @@ const { cache } = require("../middlewares/cache");
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.send(routes);
+  res.send({ status: "ready" });
 });
 
 router.get("/artist/:id", cache("SPA-", 3), getArtistByIdController);

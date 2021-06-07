@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       min: 6,
     },
+    image: { id: { type: String }, url: { type: String } },
   },
   { timestamps: true }
 );
