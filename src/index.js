@@ -1,6 +1,5 @@
 const express = require("express");
-const socket = require("socket.io");
-// const http = require("http");
+const SocketIOevents = require("./sockets/events");
 require("dotenv").config();
 require("./configs/mongo")();
 //middlewares
@@ -47,29 +46,4 @@ const server = app.listen(port, () => {
   console.log(`listening at http://localhost:${port}`);
 });
 
-const io = socket(server, {
-  cors: true,
-  origins: ["*"],
-});
-
-io.on("connection", (socket) => {
-  console.log(socket.id);
-  socket.on("MessageSent", (message) => {
-    socket.broadcast.emit("ReceiveMessage", message);
-  });
-  socket.on("SyncPlayer", (data) => {
-    socket.broadcast.emit("ReceiveSync", data);
-  });
-
-  socket.on("Seek", (time) => {
-    socket.broadcast.emit("ReceiveSeek", time);
-  });
-
-  socket.on("join-room", (room) => {
-    console.log("room joined ", room, socket.id);
-    socket.join(room);
-  });
-  socket.on("disconnect", () => {
-    console.log("disconnected ", socket.id);
-  });
-});
+SocketIOevents(server);

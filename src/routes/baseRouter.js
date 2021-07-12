@@ -8,6 +8,7 @@ const {
   getNewReleaseController,
   getTopTracksController,
 } = require("../controllers/baseController");
+
 const { cache } = require("../middlewares/cache");
 
 const router = express.Router();

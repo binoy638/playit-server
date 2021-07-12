@@ -33,6 +33,10 @@ exports.registrationController = async (req, res) => {
     username,
     email,
     password: hashedpassword,
+    image: {
+      id: null,
+      url: "https://static-cdn.jtvnw.net/user-default-pictures-uv/cdd517fe-def4-11e9-948e-784f43822e80-profile_image-300x300.png",
+    },
   });
 
   try {
@@ -48,16 +52,17 @@ exports.loginController = async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate(
+      "friends.user",
+      "username email image"
+    );
+    console.log(user.friends);
     if (!user)
       return res.status(401).send("Invalid credentials. Please try again.");
     const validPass = await bcrypt.compare(password, user.password);
     if (!validPass) return res.status(401).send("Invalid Credentials");
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_TOKEN);
-    if (!user?.image?.url) {
-      user.image.url =
-        "https://static-cdn.jtvnw.net/user-default-pictures-uv/cdd517fe-def4-11e9-948e-784f43822e80-profile_image-300x300.png";
-    }
+
     res.status(200).send({
       token,
       username: user.username,

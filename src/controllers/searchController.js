@@ -2,6 +2,7 @@ const { redisCache } = require("../configs/cache");
 const { lyrics } = require("../utils/lyrics");
 const { searchTracks, searchArtists } = require("../utils/spotify");
 const { infoFromQuery } = require("../utils/youtube");
+const User = require("../models/user");
 
 exports.searchTracksController = async (req, res) => {
   const query = req.query.query;
@@ -59,5 +60,32 @@ exports.searchLyrcisController = async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500);
+  }
+};
+
+exports.searchUserController = async (req, res) => {
+  const { user: searcher } = req;
+
+  try {
+    const { query } = req.query;
+
+    //query to find user matching the search term and filter the user who performed the search
+    const user = await User.findOne({
+      $and: [{ username: query }, { _id: { $ne: searcher._id } }],
+    });
+
+    if (user)
+      return res.send({
+        _id: user._id,
+        username: user.username,
+        image: user?.image?.url
+          ? user.image.url
+          : "https://static-cdn.jtvnw.net/user-default-pictures-uv/cdd517fe-def4-11e9-948e-784f43822e80-profile_image-300x300.png",
+      });
+
+    return res.status(404).send({});
+  } catch (error) {
+    console.error(error);
+    res.status(404).send({});
   }
 };

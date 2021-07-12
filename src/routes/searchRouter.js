@@ -4,8 +4,10 @@ const {
   searchVideoIdController,
   searchArtistsController,
   searchLyrcisController,
+  searchUserController,
 } = require("../controllers/searchController");
 const { cache } = require("../middlewares/cache");
+const verifyToken = require("../middlewares/verifyToken");
 
 const router = express.Router();
 
@@ -30,5 +32,7 @@ router.get("/videoid", cache("YTID-", 2), searchVideoIdController);
 router.get("/artist", searchArtistsController);
 
 router.get("/lyrics/:title/:artist", cache("LRI-", 3), searchLyrcisController);
+
+router.get("/user", verifyToken, searchUserController);
 
 module.exports = router;
