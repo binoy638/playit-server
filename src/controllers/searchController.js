@@ -78,9 +78,7 @@ exports.searchUserController = async (req, res) => {
       return res.send({
         _id: user._id,
         username: user.username,
-        image: user?.image?.url
-          ? user.image.url
-          : "https://static-cdn.jtvnw.net/user-default-pictures-uv/cdd517fe-def4-11e9-948e-784f43822e80-profile_image-300x300.png",
+        image: user.image,
       });
 
     return res.status(404).send({});

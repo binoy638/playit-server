@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env NODE_ENV=test mocha src/test/**/*.js --no-timeout --exit",
     "dev": "nodemon src/index.js",
     "start": "node src/index.js"
   },
@@ -23,6 +23,7 @@
     "genius-lyrics-api": "^3.0.6",
     "helmet": "^4.4.1",
     "joi": "^17.4.0",
+    "joi-objectid": "^3.0.1",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.10",
     "morgan": "^1.10.0",
@@ -34,7 +35,13 @@
     "youtube-search": "^1.1.6"
   },
   "devDependencies": {
+    "chai": "^4.3.4",
+    "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
-    "nodemon": "^2.0.7"
+    "mocha": "^9.0.2",
+    "mockgoose": "^8.0.4",
+    "mongodb-memory-server": "^7.2.0",
+    "nodemon": "^2.0.7",
+    "supertest": "^6.1.3"
   }
 }

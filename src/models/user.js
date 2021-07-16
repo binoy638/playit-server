@@ -38,6 +38,7 @@ const userSchema = new mongoose.Schema(
           //3 :'pending',
           //4 :'friends'
         },
+        time: { type: Date, default: Date.now },
       },
     ],
   },

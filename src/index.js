@@ -1,7 +1,7 @@
 const express = require("express");
 const SocketIOevents = require("./sockets/events");
 require("dotenv").config();
-require("./configs/mongo")();
+// require("./configs/mongo")();
 //middlewares
 const cors = require("cors");
 const morgan = require("morgan");
@@ -13,6 +13,7 @@ const baseRouter = require("./routes/baseRouter");
 const authRouter = require("./routes/authRouter");
 const playlistRouter = require("./routes/playlistRouter");
 const userRouter = require("./routes/userRouter");
+const { connectDB } = require("./configs/mongo");
 
 const port = process.env.PORT || 5001;
 
@@ -42,8 +43,12 @@ app.use((req, res) => {
   res.status(404).send({ status: 404 });
 });
 
-const server = app.listen(port, () => {
-  console.log(`listening at http://localhost:${port}`);
+connectDB().then(() => {
+  const server = app.listen(port, () => {
+    if (process.env.NODE_ENV !== "test")
+      console.log(`listening at http://localhost:${port}`);
+  });
+  SocketIOevents(server);
 });
 
-SocketIOevents(server);
+module.exports = app;
