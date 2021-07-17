@@ -76,7 +76,7 @@ describe("User routes tests", () => {
   it("OK, Get friend list of an user", (done) => {
     request(app)
       .get("/user/friends")
-      .set({ Authorization: `Bearer ${userToken1}` })
+      .set({ Authorization: `Bearer ${userToken2}` })
       .end((err, res) => {
         if (err) return done(err);
         expect(res.statusCode).to.equal(200);
@@ -321,6 +321,24 @@ describe("User routes tests", () => {
           .end((err, res) => {
             if (err) return done(err);
             expect(res.statusCode).to.equal(200);
+            done();
+          });
+      });
+  });
+
+  it("OK, Remove pending friend request (mockuser1 added mockuser2)", (done) => {
+    request(app)
+      .post(`/user/addfriend`)
+      .set({ Authorization: `Bearer ${userToken1}` })
+      .send({ userID: mockUser2._id })
+      .end((err, res) => {
+        if (err) return done(err);
+        request(app)
+          .post("/user/removefriendrequest")
+          .set({ Authorization: `Bearer ${userToken1}` })
+          .send({ userID: mockUser2._id })
+          .end((err, res) => {
+            if (err) return done(err);
             done();
           });
       });

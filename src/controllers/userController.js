@@ -78,34 +78,38 @@ exports.addFriendController = async (req, res) => {
   if (error) return res.status(400).send({ message: "Invalid userID." });
 
   try {
-    const friendExists = await User.aggregate([
+    const friendExists = await User.findById(friendUserID);
+
+    if (!friendExists)
+      return res.status(404).send({ message: "User doesn't exists(friend)" });
+
+    const alreadyFriends = await User.aggregate([
       {
         $match: {
           _id: new mongoose.Types.ObjectId(user._id),
+          // _id: user._id,
         },
       },
       { $unwind: "$friends" },
       {
         $match: {
           "friends.user": new mongoose.Types.ObjectId(friendUserID),
+          // "friends.user": friendUserID,
         },
-      },
-      {
-        $project: { friends: true },
       },
     ]);
 
-    if (friendExists.length)
+    if (alreadyFriends.length)
       return res.status(400).send({
         message: "User already exist in friend list.",
         isfriend: true,
-        status: friendExists[0].friends.status,
+        status: alreadyFriends[0].friends.status,
       });
 
     //added this user
     const updatedfriendUser = await User.findOneAndUpdate(
       { _id: friendUserID },
-      { $push: { friends: { user: { _id: user._id }, status: 2 } } },
+      { $addToSet: { friends: { user: { _id: user._id }, status: 2 } } },
       { new: true }
     );
     if (!updatedfriendUser)
@@ -114,7 +118,7 @@ exports.addFriendController = async (req, res) => {
         .send({ message: "Could not find the user(friend)." });
     const updatedUser = await User.findOneAndUpdate(
       { _id: user._id },
-      { $push: { friends: { user: updatedfriendUser._id, status: 3 } } },
+      { $addToSet: { friends: { user: updatedfriendUser._id, status: 3 } } },
       { new: true }
     );
 
@@ -242,6 +246,46 @@ exports.rejectFriendController = async (req, res) => {
         .send({ message: "could not update friend list(user2)" });
 
     res.send({ message: "friend request rejected" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "Database error" });
+  }
+};
+
+//Controller to remove pending friend requests
+
+exports.removePendingReqController = async (req, res) => {
+  const { user } = req;
+
+  const { userID: requestID } = req.body;
+
+  if (!requestID) return res.status(400).send({ message: "No userID found." });
+
+  const { error } = objectIdValidation({ id: requestID });
+
+  if (error) return res.status(400).send({ message: "Invalid userID." });
+
+  try {
+    const updateUser = await User.updateOne(
+      { _id: user._id, "friends.user": requestID, "friends.status": 3 },
+      { $pull: { friends: { user: { _id: requestID }, status: 3 } } }
+    );
+    if (updateUser.nModified === 0)
+      return res
+        .status(400)
+        .send({ message: "could not update friend list(user1)" });
+
+    const updatefriendUser = await User.updateOne(
+      { _id: requestID, "friends.user": user._id, "friends.status": 2 },
+      { $pull: { friends: { user: { _id: user._id }, status: 2 } } }
+    );
+
+    if (updatefriendUser.nModified === 0)
+      return res
+        .status(400)
+        .send({ message: "could not update friend list(user2)" });
+
+    res.send({ message: "removed pending friend request" });
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: "Database error" });

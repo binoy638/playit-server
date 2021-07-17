@@ -69,7 +69,6 @@ describe("Authentication Routes tests", () => {
         expect(body).to.have.property("username");
         expect(body).to.have.property("email");
         expect(body).to.have.property("image").to.have.keys("id", "url");
-        expect(body).to.have.property("friends").with.lengthOf(0);
         done();
       });
   });

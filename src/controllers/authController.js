@@ -33,10 +33,10 @@ exports.registrationController = async (req, res) => {
     });
 
     await user.save();
-    res.sendStatus(201);
+    res.status(201).send({ message: "user created" });
   } catch (error) {
     console.log(error);
-    res.status(500).send(error);
+    res.status(500).send({ message: "Database error" });
   }
 };
 
@@ -46,10 +46,7 @@ exports.loginController = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email }).populate(
-      "friends.user",
-      "username email image"
-    );
+    const user = await User.findOne({ email });
 
     if (!user)
       return res.status(401).send("Invalid credentials. Please try again.");
@@ -62,10 +59,9 @@ exports.loginController = async (req, res) => {
       username: user.username,
       email: user.email,
       image: user.image,
-      friends: user.friends,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send("Server Error");
+    res.status(500).send({ message: "Database error" });
   }
 };
