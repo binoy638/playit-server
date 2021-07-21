@@ -4,6 +4,7 @@ const {
   removeSocket,
   getUserSockets,
   getOnlineFriends,
+  getSocketUser,
 } = require("../utils/socketHandler");
 
 module.exports = (server) => {
@@ -22,26 +23,39 @@ module.exports = (server) => {
     await initialConnHandler(socket, io);
 
     socket.on("fetchOnlineFriends", async () => {
-      console.log("inside fetch friends");
       const onlineFriends = await getOnlineFriends(socket.username);
       io.to(socket.id).emit("SetOnlineFriends", onlineFriends);
     });
 
-    socket.on("MessageSent", (message) => {
-      socket.broadcast.emit("ReceiveMessage", message);
-    });
-    socket.on("SyncPlayer", (data) => {
-      socket.broadcast.emit("ReceiveSync", data);
+    //this will run when a user clicks on sync player
+    socket.on("Sync:request", async (id, username) => {
+      const friend = await getUserSockets(id);
+      if (!friend) return socket.emit("Sync:user-offline", username);
+
+      //TODO: handle multiple socket connections
+
+      const friendSocket = friend.sockets[0];
+
+      if (!friendSocket) return socket.emit("Sync:user-offline", username);
+
+      socket.join(`Player-${id}`);
+      socket.to(friendSocket).emit("Sync:connected-to");
+      socket.emit("Sync:connected-with", id);
     });
 
-    socket.on("Seek", (time) => {
-      socket.broadcast.emit("ReceiveSeek", time);
+    //Sync player with room id
+    socket.on("Sync:player-track", (track, id) => {
+      socket.to(`Player-${id}`).emit("Sync:player-track", track);
     });
 
-    socket.on("join-room", (room) => {
-      console.log("room joined ", room, socket.id);
-      socket.join(room);
+    socket.on("Sync:player-slider", (time, id) => {
+      socket.to(`Player-${id}`).emit("Sync:player-slider", time);
     });
+
+    socket.on("Sync:player-state", (bool, id) => {
+      socket.to(`Player-${id}`).emit("Sync:player-state", bool);
+    });
+
     socket.on("disconnect", () => {
       const dcUser = removeSocket(socket.id);
       if (!dcUser) return;
@@ -51,7 +65,7 @@ module.exports = (server) => {
           const friendUser = getUserSockets(friend);
           if (friendUser) {
             friendUser.sockets.forEach((socketID) =>
-              io.to(socketID).emit("FriendOffline", socket.username)
+              socket.to(socketID).emit("FriendOffline", socket.username)
             );
           }
         });
@@ -60,7 +74,7 @@ module.exports = (server) => {
   });
 };
 
-const initialConnHandler = async (socket, io) => {
+const initialConnHandler = async (socket) => {
   const { username, id } = socket;
   const user = await addUser(username, id);
   if (!user) throw new Error("Socket: User is undefined");
@@ -71,7 +85,7 @@ const initialConnHandler = async (socket, io) => {
       const friendUser = getUserSockets(friend);
       if (friendUser) {
         friendUser.sockets.forEach((socketID) =>
-          io.to(socketID).emit("FriendOnline", username)
+          socket.to(socketID).emit("FriendOnline", username)
         );
       }
     });
